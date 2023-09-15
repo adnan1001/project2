@@ -7,12 +7,15 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Download ngrok
+        run: |
+          Invoke-WebRequest https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-windows-amd64.zip -OutFile ngrok.zip
+          Expand-Archive ngrok.zip -DestinationPath .
+        shell: powershell
+      
       - name: Authenticate with ngrok
         run: |
-          # Copy ngrok.exe to a directory in the system's PATH
-          Copy-Item C:\ngrok.exe C:\Windows\System32\
-          # Authenticate with ngrok using the copied executable
-          C:\Windows\System32\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+          .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
         env:
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
         shell: powershell
@@ -37,7 +40,4 @@ jobs:
           Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
         shell: powershell
 
-      - name: Create ngrok Tunnel for RDP
-        run: |
-          C:\Windows\System32\ngrok.exe tcp 3389
-        shell: powershell
+      - name: Create ngrok
